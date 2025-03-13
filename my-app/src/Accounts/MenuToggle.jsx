@@ -14,10 +14,10 @@ const MenuToggle = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
                 <Dropdown.Item onClick={() => navigate('/Accounts/signup')}>
-                    <Signup />
+                    Signup
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => navigate('/Accounts/login')}>
-                    <Login />
+                    Login
                 </Dropdown.Item>
                 <Dropdown.Item onClick={() => alert('Something else here')}>
                     Something else here

@@ -15,10 +15,8 @@ const NavBar = () => {
     return (
         <ul className="navbar navbar-expand-lg navbar-light bg-light " style={{ border: "2px solid green", justifyContent: "center" }}>
             <h1>Ram Super market</h1>
-
-            <li>
+            <li className='mb-3'>
                 <Pages />
-
             </li>
             <li>
                 <Shop />
@@ -29,11 +27,10 @@ const NavBar = () => {
             <li>
                 <MenuToggle />
             </li>
-
-            <li style={{ alignItems: "flex-end" }}>
+            {/* <li style={{ alignItems: "flex-end" }}>
                 <button className='btn btn-primary' onClick={() => navigate("/Accounts/signup")} style={{ cursor: "pointer" }}>Signup</button>
                 <button className='btn btn-primary' onClick={() => navigate("/Accounts/login")} style={{ cursor: "pointer" }}>Login</button>
-            </li>
+            </li> */}
         </ul >
 
     );

@@ -10,8 +10,8 @@ import Super from './sp';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    {/* <SuperMarket /> */}
-    <Super />
+    <SuperMarket />
+    {/* <Super /> */}
   </React.StrictMode>
 );
 
