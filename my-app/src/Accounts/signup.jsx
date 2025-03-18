@@ -1,107 +1,130 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Input from "../Components/input";
+import {
+    userNameValidation,
+    emailValidation,
+    passwordValidation,
+    confirmPasswordValidation,
+    phoneValidation
+} from "../Components/validation";
 
 const Signup = () => {
-    const [name, setName] = useState("");
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [phone, setPhone] = useState("");
-    const [error, setError] = useState("");
+    const [formData, setFormData] = useState({
+        name: "",
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        phone: "",
+    });
+
+    const [error, setError] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    const isValidEmail = (email) => /^[\w.-]+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/.test(email);
-    const isValidUsername = (username) => /^(?![_-])[a-zA-Z0-9_-]{8,16}(?<![_-])$/.test(username);
-    const isValidPassword = (password) => /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*[0-9]).{8,16}$/.test(password);
-    const isValidPhone = (phone) => /^[0-9]{10}$/.test(phone);
+    const handleChange = (value, isValid, key) => {
+        setFormData({ ...formData, [key]: value });
+        setError({ ...error, [key]: isValid });
+    };
 
-    const handleSignup = () => {
-        setError("");
-
-        if (!name || !username || !email || !password || !confirmPassword || !phone) {
-            setError("All fields are required.");
-            return;
+    const validateForm = () => {
+        // const { value, password } = e.target.value;
+        let newErrors = {};
+        // if (!formData.name){
+        //  newErrors.name = "Full Name is required.";
+        const usernameCheck = userNameValidation(formData.username);
+        if (!usernameCheck.isValid) {
+            newErrors.username = usernameCheck.message;
+        } else {
+            delete newErrors.username;
         }
 
-        if (!isValidEmail(email)) {
-            setError("Invalid email format.");
-            return;
+        const emailCheck = emailValidation(formData.email);
+        if (!emailCheck.isValid) {
+            newErrors.email = emailCheck.message;
+        }
+        else {
+            delete newErrors.email;
+        }
+        const passwordCheck = passwordValidation(formData.password);
+        if (!passwordCheck.isValid) {
+            newErrors.password = passwordCheck.message;
+        }
+        else {
+            delete newErrors.password;
+        }
+        const confirmPasswordCheck = confirmPasswordValidation(formData.confirmPassword, formData.password);
+        if (!confirmPasswordCheck.isValid) {
+            newErrors.confirmPassword = confirmPasswordCheck.message;
+        }
+        else {
+            delete newErrors.confirmPassword;
+        }
+        const phoneCheck = phoneValidation(formData.phone);
+        if (!phoneCheck.isValid) {
+            newErrors.phone = phoneCheck.message;
+        }
+        else {
+            delete newErrors.phone;
         }
 
-        if (!isValidUsername(username)) {
-            setError("Username must be 8-16 characters, alphanumeric with '-' or '_', and cannot start or end with special characters.");
-            return;
-        }
+        setError(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-        if (!isValidPassword(password)) {
-            setError("Password must be 8-16 characters with at least one uppercase letter, one special character, and one number.");
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            setError("Passwords do not match.");
-            return;
-        }
-
-        if (!isValidPhone(phone)) {
-            setError("Phone number must be exactly 10 digits.");
-            return;
-        }
+    const handleSignup = (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
 
         setIsSubmitting(true);
-        localStorage.setItem("Username", username);
-        localStorage.setItem("Email", email);
-        localStorage.setItem("Password", password);
+        setTimeout(() => {
+            localStorage.setItem("Username", formData.username);
+            localStorage.setItem("Email", formData.email);
+            localStorage.setItem("Password", formData.password);
 
-        alert("Signup Successful!");
-        navigate("/Accounts/login");
+            alert("Signup Successful!");
+            navigate("/Accounts/login");
+        }, 1000);
     };
+
+    const inputFields = [
+        { label: "Full Name", type: "text", name: "name" },
+        { label: "Username", type: "text", name: "username", validators: ["mandatory", "userNameValidation"] },
+        { label: "Email", type: "email", name: "email" },
+        { label: "Password", type: "password", name: "password" },
+        { label: "Confirm Password", type: "password", name: "confirmPassword" },
+        { label: "Phone Number", type: "text", name: "phone" }
+    ];
 
     return (
         <div className="container mt-5 mb-5" style={{ maxWidth: "400px" }}>
             <div className="p-4 border rounded">
                 <h1 className="text-center">Sign Up</h1>
-
-                <div className="form-floating mb-3">
-                    <input type="text" className="form-control" id="name" placeholder="Full Name" value={name} onChange={(e) => setName(e.target.value)} />
-                    <label htmlFor="name">Full Name</label>
-                </div>
-
-                <div className="form-floating mb-3">
-                    <input type="text" className="form-control" id="username" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
-                    <label htmlFor="username">Username</label>
-                </div>
-
-                <div className="form-floating mb-3">
-                    <input type="email" className="form-control" id="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                    <label htmlFor="email">Email</label>
-                </div>
-
-                <div className="form-floating mb-3">
-                    <input type="password" className="form-control" id="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                    <label htmlFor="password">Password</label>
-                </div>
-
-                <div className="form-floating mb-3">
-                    <input type="password" className="form-control" id="confirmPassword" placeholder="Confirm Password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                    <label htmlFor="confirmPassword">Confirm Password</label>
-                </div>
-
-                <div className="form-floating mb-3">
-                    <input type="text" className="form-control" id="phone" placeholder="Phone Number" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                    <label htmlFor="phone">Phone Number</label>
-                </div>
-
-                {error && <p className="text-danger text-center">{error}</p>}
+                {inputFields.map((field) => (
+                    <div key={field.name}>
+                        <Input
+                            label={field.label}
+                            type={field.type}
+                            name={field.name}
+                            value={formData[field.name]}
+                            onChange={handleChange}
+                            error={error[field.name]}
+                            validators={field.validators}
+                        />
+                    </div>
+                ))}
 
                 <button className="btn btn-primary w-100" onClick={handleSignup} disabled={isSubmitting}>
                     {isSubmitting ? "Signing up..." : "Sign Up"}
                 </button>
 
                 <p className="text-center mt-3">
-                    Already have an account? <span role="button" className="text-primary" onClick={() => navigate("/Accounts/login")} style={{ cursor: "pointer" }}>Log in</span>
+                    Already have an account?{" "}
+                    <span role="button" className="text-primary" onClick={() => navigate("/Accounts/login")} style={{ cursor: "pointer" }}
+                    >
+                        Log in
+                    </span>
                 </p>
             </div>
         </div>

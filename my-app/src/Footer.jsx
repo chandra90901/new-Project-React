@@ -1,10 +1,10 @@
 import React from 'react';
-// import Footer
+
 const Footer = () => {
     return (
-        <footer className="fixed-bottom" style={{ backgroundColor: "grey" }}>
+        <footer className="fixed-bottom" style={{ backgroundColor: "grey", textAlign: "center" }}>
             <div className="container">
-                <span className="text-center">© 2023 Ram Super Market. All rights reserved.</span>
+                <span>© 2025 Ram Super Market. All rights reserved.</span>
             </div>
         </footer>
     );

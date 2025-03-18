@@ -1,61 +1,95 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Home from "../Home";
+import { userNameValidation, emailValidation, passwordValidation } from "../Components/validation";
+import Input from "../Components/input";
+
 const Login = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState(false);
+    const [formData, setFormData] = useState({
+        email: "",
+        password: "",
+    });
+    const [error, setError] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        if (!email) {
-            setError("Email is required!");
-            return;
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+        setError({ ...error, [e.target.name]: "" });
+    };
+    const validateForm = () => {
+        let newErrors = {};
+
+        const emailCheck = emailValidation(formData.email);
+        if (!emailCheck.isValid) {
+            newErrors.email = emailCheck.message;
+        } else {
+            delete newErrors.email;
         }
 
-        if (!password) {
-            setError("Password is required!");
-            return;
+        const passwordCheck = passwordValidation(formData.password);
+        if (!passwordCheck.isValid) {
+            newErrors.password = passwordCheck.message;
+        } else {
+            delete newErrors.password;
         }
+
+        newErrors.userName = !formData.userName ? "Username is required" : "";
+
+        setError(newErrors);
+        return Object.keys(newErrors).every(key => !newErrors[key]);
+    };
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        if (!validateForm()) return;
 
         setIsSubmitting(true);
+        // setTimeout(() => {
         const storedEmail = localStorage.getItem("Email");
         const storedPassword = localStorage.getItem("Password");
 
-        if (email === storedEmail && password === storedPassword) {
+        if (formData.email === storedEmail && formData.password === storedPassword) {
             alert("Login Successful!");
-            navigate("./Home");
+            navigate("/");
         } else {
-            setError("Invalid credentials. Try again.");
+            setError({ email: "Invalid credentials.", password: "Invalid credentials." });
         }
 
         setIsSubmitting(false);
-    };
+        // }, 1000);
+    }
+
+    const inputFields = [
+        // { label: "Username", type: "text", name: "username" },
+        { label: "Email", type: "email", name: "email" },
+        { label: "Password", type: "password", name: "password" }
+    ];
 
     return (
         <div className="container mt-5 mb-5" style={{ maxWidth: "400px" }}>
             <div className="p-4 border rounded">
                 <h1 className="text-center">Login</h1>
-                <div className="form-floating mb-3">
-                    <input type="email" className="form-control" id="email" placeholder="Enter Your Email" value={email} onChange={(e) => setEmail(e.target.value)}
-                        autoComplete="email" />
-                    <label htmlFor="email">Email</label>
-                </div>
-                <div className="form-floating mb-3">
-                    <input type="password" className="form-control" id="password" placeholder="Enter Your Password" value={password} onChange={(e) => setPassword(e.target.value)}
-                        autoComplete="current-password" />
-                    <label htmlFor="password">Password</label>
-                </div>
-                {error && <p className="text-danger text-center">{error}</p>}
-                <button className="btn btn-primary w-100" onClick={handleLogin} disabled={isSubmitting}>
-                    {isSubmitting ? "Logging in..." : "Log in"}
-                </button>
-
+                <form onSubmit={handleLogin}>
+                    {inputFields.map((field) => (
+                        <div key={field.name}>
+                            <Input
+                                label={field.label}
+                                type={field.type}
+                                name={field.name}
+                                value={formData[field.name]}
+                                onChange={handleChange}
+                                error={error[field.name]}
+                            />
+                            {/* {error[field.name] && <p className="text-danger">{error[field.name]}</p>} */}
+                        </div>
+                    ))}
+                    <button className="btn btn-primary w-100 mt-2" type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? "Logging in..." : "Log in"}
+                    </button>
+                </form>
                 <p className="text-center mt-3">
                     Need an account?{" "}
-                    <span role="button" className="text-primary" onClick={() => navigate("/Accounts/signup")} style={{ cursor: "pointer" }}
-                    >
+                    <span role="button" className="text-primary" onClick={() => navigate("/Accounts/signup")} style={{ cursor: "pointer" }}>
                         Sign Up
                     </span>
                 </p>

@@ -14,22 +14,17 @@ const SuperMarket = () => {
     return (
         <Router>
             <NavBar />
-            <menu>
-                {/* <div className="container mt-5">
-                    <h1>Welcome to Ram Super Market</h1>
-                    <p>Your one-stop shop for fresh groceries and more!</p>
-                </div> */}
+            <div>
                 <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/Shop/shop" element={<Shop />} />
-                    <Route path="/accounts/signup" element={<Signup />} />
-                    <Route path="/accounts/login" element={<Login />} />
-                    <Route path="/Shop/shop" element={<Shop />} />
+                    <Route path="/Accounts/signup" element={<Signup />} />
+                    <Route path="/Accounts/login" element={<Login />} />
                     <Route path="/Shop/items" element={<Items />} />
                     <Route path="/pages/Category" element={<Category />} />
                     <Route path="/pages/Pages" element={<Pages />} />
                 </Routes>
-            </menu>
+            </div>
             <Footer />
         </Router >
     );
