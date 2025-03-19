@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../Components/input";
-import {
-    userNameValidation,
-    emailValidation,
-    passwordValidation,
-    confirmPasswordValidation,
-    phoneValidation
-} from "../Components/validation";
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -25,57 +18,16 @@ const Signup = () => {
 
     const handleChange = (value, isValid, key) => {
         setFormData({ ...formData, [key]: value });
-        setError({ ...error, [key]: isValid });
-    };
-
-    const validateForm = () => {
-        // const { value, password } = e.target.value;
-        let newErrors = {};
-        // if (!formData.name){
-        //  newErrors.name = "Full Name is required.";
-        const usernameCheck = userNameValidation(formData.username);
-        if (!usernameCheck.isValid) {
-            newErrors.username = usernameCheck.message;
-        } else {
-            delete newErrors.username;
-        }
-
-        const emailCheck = emailValidation(formData.email);
-        if (!emailCheck.isValid) {
-            newErrors.email = emailCheck.message;
-        }
-        else {
-            delete newErrors.email;
-        }
-        const passwordCheck = passwordValidation(formData.password);
-        if (!passwordCheck.isValid) {
-            newErrors.password = passwordCheck.message;
-        }
-        else {
-            delete newErrors.password;
-        }
-        const confirmPasswordCheck = confirmPasswordValidation(formData.confirmPassword, formData.password);
-        if (!confirmPasswordCheck.isValid) {
-            newErrors.confirmPassword = confirmPasswordCheck.message;
-        }
-        else {
-            delete newErrors.confirmPassword;
-        }
-        const phoneCheck = phoneValidation(formData.phone);
-        if (!phoneCheck.isValid) {
-            newErrors.phone = phoneCheck.message;
-        }
-        else {
-            delete newErrors.phone;
-        }
-
-        setError(newErrors);
-        return Object.keys(newErrors).length === 0;
+        setError({ ...error, [key]: !isValid });
     };
 
     const handleSignup = (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
+        const hasErrors = Object.values(error).some(error => error);
+        if (hasErrors) {
+            alert("Please fix the errors before submitting.");
+            return;
+        }
 
         setIsSubmitting(true);
         setTimeout(() => {
@@ -89,12 +41,12 @@ const Signup = () => {
     };
 
     const inputFields = [
-        { label: "Full Name", type: "text", name: "name" },
-        { label: "Username", type: "text", name: "username", validators: ["mandatory", "userNameValidation"] },
-        { label: "Email", type: "email", name: "email" },
-        { label: "Password", type: "password", name: "password" },
-        { label: "Confirm Password", type: "password", name: "confirmPassword" },
-        { label: "Phone Number", type: "text", name: "phone" }
+        { label: "Full Name", type: "text", name: "name", validators: ["name"] },
+        { label: "Username", type: "text", name: "username", validators: ["username"] },
+        { label: "Email", type: "email", name: "email", validators: ["email"] },
+        { label: "Password", type: "password", name: "password", validators: ["password"] },
+        { label: "Confirm Password", type: "password", name: "confirmPassword", validators: ["confirmPassword"] },
+        { label: "Phone Number", type: "text", name: "phone", validators: ["phone"] }
     ];
 
     return (

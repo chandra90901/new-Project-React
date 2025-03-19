@@ -1,29 +1,38 @@
 import React, { useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
-import { userNameValidation } from './validation';
+import { nameValidation, emailValidation, passwordValidation, confirmPasswordValidation, phoneValidation, userNameValidation } from './validation';
 
-const Input = ({ label, type, name, value, error, onChange, onBlur, validators }) => {
-    const [fieldTitle, setFieldTitle] = useState("")
+const Input = ({ label, type, name, value, error, onChange, relatedValue, validators }) => {
+    const [fieldTitle, setFieldTitle] = useState("");
+    // const [validationError, setValidationError] = useState("");
     const onChangeValue = (e) => {
-        let error = false;
+        let error = true;
+        let errorMessage = "";
         const value = e.target.value;
         if (validators?.length > 0) {
-            validators.forEach(validator => {
 
-                if (formValidator[validator]) {
+            validators?.forEach((validator) => {
+                // setFieldTitle = "";
+                if (validator === "name") {
+                    errorMessage = nameValidation(value);
+                } else if (validator === "username") {
+                    errorMessage = userNameValidation(value);
+                } else if (validator === "email") {
+                    errorMessage = emailValidation(value);
+                } else if (validator === "password") {
+                    errorMessage = passwordValidation(value);
+                } else if (validator === "confirmPassword") {
+                    errorMessage = confirmPasswordValidation(value, relatedValue);
+                } else if (validator === "phone") {
+                    errorMessage = phoneValidation(value);
+                }
+                if (errorMessage) {
+                    error = false;
+                }
+            });
 
-                }
-                if (validator === "mandatory") {
-                    if (!value) {
-                        error = true;
-                        setFieldTitle("Please configure")
-                    } else {
-                        error = false;
-                        setFieldTitle("")
-                    }
-                }
-            })
         }
+        setFieldTitle(errorMessage);
         onChange(value, error, name);
     }
 
@@ -41,8 +50,8 @@ const Input = ({ label, type, name, value, error, onChange, onBlur, validators }
                 name={name}
                 value={value}
                 onChange={onChangeValue}
-                onBlur={onChangeValue} // Validate on field blur
-                title={fieldTitle} // Show error as a tooltip
+                onBlur={onChangeValue}
+                title={fieldTitle}
             />
             {error && (
                 <BsExclamationCircle
