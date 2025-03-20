@@ -1,16 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Dropdown from 'react-bootstrap/Dropdown';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FaSignInAlt, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
-import Signup from './signup';
-import Login from './login';
 
 const MenuToggle = () => {
     const navigate = useNavigate();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    const handleNavigation = (path) => {
-        navigate(path);
+    useEffect(() => {
+        // Check if user is logged in
+        const storedEmail = localStorage.getItem("Email");
+        const storedPassword = localStorage.getItem("Password");
+        setIsLoggedIn(!!(storedEmail && storedPassword));
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem("Email");
+        localStorage.removeItem("Password");
+        setIsLoggedIn(false);
+        navigate("/Accounts/login");
     };
 
     return (
@@ -20,13 +29,15 @@ const MenuToggle = () => {
             </Dropdown.Toggle>
 
             <Dropdown.Menu>
-                <Dropdown.Item onClick={() => handleNavigation('/Accounts/login')}>
-                    <FaSignInAlt style={{ marginRight: '8px' }} /> Login
-                </Dropdown.Item>
-
-                <Dropdown.Item onClick={() => handleNavigation('/Accounts/signup')}>
-                    <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
-                </Dropdown.Item>
+                {isLoggedIn ? (
+                    <Dropdown.Item onClick={handleLogout}>
+                        <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
+                    </Dropdown.Item>
+                ) : (
+                    <Dropdown.Item onClick={() => navigate('/Accounts/login')}>
+                        <FaSignInAlt style={{ marginRight: '8px' }} /> Login
+                    </Dropdown.Item>
+                )}
             </Dropdown.Menu>
         </Dropdown>
     );
