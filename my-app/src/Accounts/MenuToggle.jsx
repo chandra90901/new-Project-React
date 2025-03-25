@@ -7,6 +7,7 @@ import { FaSignInAlt, FaSignOutAlt, FaUserCircle } from 'react-icons/fa';
 const MenuToggle = () => {
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const email = localStorage.getItem("email");
 
     useEffect(() => {
         // Check if user is logged in
@@ -23,19 +24,21 @@ const MenuToggle = () => {
     };
 
     return (
+
         <Dropdown>
             <Dropdown.Toggle variant="success" id="dropdown-basic">
                 <FaUserCircle style={{ marginRight: '8px' }} />
+                {email ? email : "Guest"}
             </Dropdown.Toggle>
 
             <Dropdown.Menu>
                 {isLoggedIn ? (
-                    <Dropdown.Item onClick={handleLogout}>
-                        <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
-                    </Dropdown.Item>
-                ) : (
                     <Dropdown.Item onClick={() => navigate('/Accounts/login')}>
                         <FaSignInAlt style={{ marginRight: '8px' }} /> Login
+                    </Dropdown.Item>
+                ) : (
+                    <Dropdown.Item onClick={handleLogout}>
+                        <FaSignOutAlt style={{ marginRight: '8px' }} /> Logout
                     </Dropdown.Item>
                 )}
             </Dropdown.Menu>

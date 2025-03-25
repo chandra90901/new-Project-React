@@ -1,14 +1,22 @@
 import React from "react";
-const nameValidation = (value) => {
+const firstNameValidation = (value) => {
     if (!value.trim()) {
-        return { isValid: false, message: "Name is required." };
+        return { isValid: false, message: "First Name is required." };
     }
-    if (!/^[a-zA-Z ]+$/.test(value)) {
-        return { isValid: false, message: "Name should contain only letters and spaces." };
+    if (!/^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/.test(value)) {
+        return { isValid: false, message: "First Name should contain only letters and spaces." };
     }
     return { isValid: true, message: "" };
 };
-
+const lastNameValidation = (value) => {
+    if (!value.trim()) {
+        return { isValid: false, message: "Last Name is required." };
+    }
+    if (!/^[a-zA-Z]+(?:\s[a-zA-Z]+)*$/.test(value)) {
+        return { isValid: false, message: "Last Name should contain only letters and spaces." };
+    }
+    return { isValid: true, message: "" };
+};
 const userNameValidation = (value) => {
     const pattern = /^[a-zA-Z0-9_]{3,16}$/;
     if (pattern.test(value)) {
@@ -53,4 +61,4 @@ const phoneValidation = (value) => {
     }
 };
 
-export { nameValidation, userNameValidation, emailValidation, passwordValidation, confirmPasswordValidation, phoneValidation };
+export { firstNameValidation, lastNameValidation, userNameValidation, emailValidation, passwordValidation, confirmPasswordValidation, phoneValidation };

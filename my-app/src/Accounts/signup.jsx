@@ -94,7 +94,8 @@ import Input from "../Components/input";
 
 const Signup = () => {
     const [formData, setFormData] = useState({
-        name: "",
+        firstname: "",
+        lastname: "",
         username: "",
         email: "",
         password: "",
@@ -107,11 +108,11 @@ const Signup = () => {
     const navigate = useNavigate();
 
     const handleChange = (value, isValid, key) => {
-        setFormData(prevState => ({ ...prevState, [key]: value }));
-        setError(prevError => ({ ...prevError, [key]: !isValid }));
+        setFormData({ ...formData, [key]: value });
+        setError({ ...error, [key]: !isValid });
     };
 
-    const handleSignup = (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
 
         const hasErrors = Object.values(error).some(err => err);
@@ -121,18 +122,34 @@ const Signup = () => {
         }
 
         setIsSubmitting(true);
-        setTimeout(() => {
-            localStorage.setItem("Username", formData.username);
-            localStorage.setItem("Email", formData.email);
-            localStorage.setItem("Password", formData.password);
 
-            // alert("Signup Successful!");
-            navigate("/Accounts/login");
-        }, 1000);
+        try {
+            const response = await fetch("http://localhost:5000/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert("Signup Successful!");
+                navigate("/Accounts/login");
+            } else {
+                alert(data.message || "Signup failed");
+            }
+        } catch (error) {
+            console.error("Signup error:", error);
+            alert("Error signing up. Please try again.");
+        }
+
+        setIsSubmitting(false);
     };
 
+
     const inputFields = [
-        { label: "Full Name", type: "text", name: "name", validators: ["name"] },
+        { label: "Full Name", type: "text", name: "firstname", validators: ["firstname"] },
+        { label: "Last Name", type: "text", name: "lastname", validators: ["lastname"] },
         { label: "Username", type: "text", name: "username", validators: ["username"] },
         { label: "Email", type: "email", name: "email", validators: ["email"] },
         { label: "Password", type: "password", name: "password", validators: ["password"] },

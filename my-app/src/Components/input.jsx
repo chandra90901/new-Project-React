@@ -77,7 +77,7 @@
 
 import React, { useState } from "react";
 import { BsExclamationCircle } from "react-icons/bs";
-import { nameValidation, emailValidation, passwordValidation, confirmPasswordValidation, phoneValidation, userNameValidation } from './validation';
+import { firstNameValidation, lastNameValidation, emailValidation, passwordValidation, confirmPasswordValidation, phoneValidation, userNameValidation } from './validation';
 const Input = ({ label, type, name, value, error, onChange, relatedValue, validators }) => {
     const [fieldError, setFieldError] = useState("");
 
@@ -86,7 +86,8 @@ const Input = ({ label, type, name, value, error, onChange, relatedValue, valida
 
         if (validators?.length > 0) {
             for (const validator of validators) {
-                if (validator === "name") validationResult = nameValidation(value);
+                if (validator === "firstname") validationResult = firstNameValidation(value);
+                else if (validator === "lastname") validationResult = lastNameValidation(value);
                 else if (validator === "username") validationResult = userNameValidation(value);
                 else if (validator === "email") validationResult = emailValidation(value);
                 else if (validator === "password") validationResult = passwordValidation(value);
