@@ -178,6 +178,7 @@ const Login = () => {
     });
     const [error, setError] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
     const handleChange = (value, isValid, key) => {
@@ -187,39 +188,40 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        setSuccessMessage("");
+        setError({});
 
-        // if (Object.values(error).some((err) => err)) {
-        //     alert("Please fix the errors before submitting.");
-        //     return;
-        // }
+        // Validate inputs before submitting
+        const hasErrors = Object.values(error).some(err => err);
+        if (hasErrors) {
+            alert("Please fix the errors before submitting.");
+            return;
+        }
 
-        // setIsSubmitting(true);
-
+        setIsSubmitting(true);
         try {
             const response = await fetch("http://localhost:5000/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
-
             });
-            console.log("Signup Request Data:", formData);
+
             const data = await response.json();
 
-            if (response.ok) {
-                alert("Login Successful!");
-                // localStorage.setItem("user", JSON.stringify(data.user));
-                localStorage.setItem("token", data.token);
-                localStorage.setItem("email", formData.email);
-                navigate("/");
-            } else {
-                alert(data.message || "Invalid login credentials");
+            if (!response.ok) {
+                throw new Error(data.message || "Login failed");
             }
-        } catch (error) {
-            console.error("Error during login:", error);
-            alert("Error logging in. Please try again.");
-        }
 
-        setIsSubmitting(false);
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("email", formData.email);
+            setSuccessMessage("Login Successful!");
+            setTimeout(() => navigate("/"), 1000);
+        } catch (error) {
+            console.error("Login error:", error);
+            setError({ general: error.message || "Error logging in. Please try again." });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
 
@@ -246,8 +248,10 @@ const Login = () => {
                     </div>
                 ))}
                 <button className="btn btn-primary w-100 mt-2" onClick={handleLogin} disabled={isSubmitting}>
-                    {isSubmitting ? "Logging in..." : "Log in"}
+                    Log in
                 </button>
+                {successMessage && <p className="text-success text-center mt-3">{successMessage}</p>}
+                {error.general && <p className="text-danger text-center mt-3">{error.general}</p>}
                 <p className="text-center mt-3">
                     Need an account?{" "}
                     <span role="button" className="text-primary" onClick={() => navigate("/Accounts/signup")} style={{ cursor: "pointer" }}>

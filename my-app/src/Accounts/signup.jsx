@@ -105,6 +105,7 @@ const Signup = () => {
 
     const [error, setError] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
 
     const handleChange = (value, isValid, key) => {
@@ -114,7 +115,7 @@ const Signup = () => {
 
     const handleSignup = async (e) => {
         e.preventDefault();
-
+        setSuccessMessage("");
         const hasErrors = Object.values(error).some(err => err);
         if (hasErrors) {
             alert("Please fix the errors before submitting.");
@@ -133,14 +134,14 @@ const Signup = () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert("Signup Successful!");
-                navigate("/Accounts/login");
+                setSuccessMessage("Sign up Successful!");
+                setTimeout(() => navigate("/Accounts/login"), 500);
             } else {
-                alert(data.message || "Signup failed");
+                setError({ ...error, general: data.message || "Signup failed" });
             }
         } catch (error) {
             console.error("Signup error:", error);
-            alert("Error signing up. Please try again.");
+            setError({ ...error, general: "Error signup in. Please try again." });
         }
 
         setIsSubmitting(false);
@@ -177,9 +178,10 @@ const Signup = () => {
                 ))}
 
                 <button className="btn btn-primary w-100" onClick={handleSignup} disabled={isSubmitting}>
-                    {isSubmitting ? "Signing up..." : "Sign Up"}
+                    Sign Up
                 </button>
-
+                {successMessage && <p className="text-success text-center mt-3">{successMessage}</p>}
+                {error.general && <p className="text-danger text-center mt-3">{error.general}</p>}
                 <p className="text-center mt-3">
                     Already have an account?{" "}
                     <span
