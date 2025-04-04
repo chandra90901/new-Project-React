@@ -94,7 +94,7 @@ const Input = ({ label, type, name, value, error, onChange, relatedValue, valida
                 else if (validator === "confirmPassword") validationResult = confirmPasswordValidation(value, relatedValue);
                 else if (validator === "phone") validationResult = phoneValidation(value);
 
-                if (!validationResult.isValid) break; // Stop at first error
+                if (!validationResult.isValid) break;
             }
         }
 
@@ -124,7 +124,7 @@ const Input = ({ label, type, name, value, error, onChange, relatedValue, valida
                 value={value}
                 onChange={handleChange}
                 onBlur={handleChange}
-                title={fieldError} // Shows error as tooltip
+                title={fieldError}
             />
             {fieldError && (
                 <BsExclamationCircle

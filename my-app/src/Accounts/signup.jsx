@@ -91,7 +91,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../Components/input";
-
+import signupImage from "../images/signup.jpg";
 const Signup = () => {
     const [formData, setFormData] = useState({
         firstname: "",
@@ -107,7 +107,16 @@ const Signup = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
-
+    const divStyle = {
+        width: '100vw',
+        height: '100vh',
+        backgroundImage: `url(${signupImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    };
     const handleChange = (value, isValid, key) => {
         setFormData({ ...formData, [key]: value });
         setError({ ...error, [key]: !isValid });
@@ -116,8 +125,10 @@ const Signup = () => {
     const handleSignup = async (e) => {
         e.preventDefault();
         setSuccessMessage("");
-        const hasErrors = Object.values(error).some(err => err);
-        if (hasErrors) {
+        setError({});
+
+        // Check for errors before submission
+        if (Object.values(error).some(err => err)) {
             alert("Please fix the errors before submitting.");
             return;
         }
@@ -125,7 +136,7 @@ const Signup = () => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch("http://localhost:5000/signup", {
+            const response = await fetch("http://localhost:5000/api/signup", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
@@ -135,17 +146,18 @@ const Signup = () => {
 
             if (response.ok) {
                 setSuccessMessage("Sign up Successful!");
-                setTimeout(() => navigate("/Accounts/login"), 500);
+                setTimeout(() => navigate("/Accounts/login"), 1000);
             } else {
-                setError({ ...error, general: data.message || "Signup failed" });
+                setError({ ...error, general: data.message });
             }
         } catch (error) {
             console.error("Signup error:", error);
-            setError({ ...error, general: "Error signup in. Please try again." });
+            setError({ general: "Error signing up. Please try again." });
         }
 
         setIsSubmitting(false);
     };
+
 
 
     const inputFields = [
@@ -159,9 +171,9 @@ const Signup = () => {
     ];
 
     return (
-        <div className="container mt-5 mb-5" style={{ maxWidth: "400px" }}>
-            <div className="p-4 border rounded">
-                <h1 className="text-center">Sign Up</h1>
+        <div style={divStyle}>
+            <div className="p-3 border rounded" style={{ width: "350px", backgroundColor: "white", padding: "20px" }}>
+                <h1 className="text-center" >Sign Up</h1>
                 {inputFields.map((field) => (
                     <div key={field.name}>
                         <Input

@@ -17,6 +17,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^3.1.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.14.0",
     "react": "^18.3.1",
@@ -32,7 +33,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "node src/Server/server.js",
+    "server": "node --inspect src/Server/server.js",
     "dev": "concurrently \"npm start\" \"npm run server\""
   },
   "eslintConfig": {

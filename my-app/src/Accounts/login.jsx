@@ -165,21 +165,28 @@
 // };
 
 // export default Login;
-
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../Components/input";
+import loginImage from "../images/login.jpg";
 
 const Login = () => {
-    const [formData, setFormData] = useState({
-        email: "",
-        password: "",
-    });
+    const [formData, setFormData] = useState({ email: "", password: "" });
     const [error, setError] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const navigate = useNavigate();
+
+    const divStyle = {
+        width: "100vw",
+        height: "100vh",
+        backgroundImage: `url(${loginImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+    };
 
     const handleChange = (value, isValid, key) => {
         setFormData({ ...formData, [key]: value });
@@ -191,16 +198,14 @@ const Login = () => {
         setSuccessMessage("");
         setError({});
 
-        // Validate inputs before submitting
-        const hasErrors = Object.values(error).some(err => err);
-        if (hasErrors) {
+        if (Object.values(error).some((err) => err)) {
             alert("Please fix the errors before submitting.");
             return;
         }
 
         setIsSubmitting(true);
         try {
-            const response = await fetch("http://localhost:5000/login", {
+            const response = await fetch("http://localhost:5000/api/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
@@ -212,10 +217,17 @@ const Login = () => {
                 throw new Error(data.message || "Login failed");
             }
 
+            if (!data.token || !data.user) {
+                throw new Error("Invalid response, login failed.");
+            }
+
+            // Store token and user details in localStorage
             localStorage.setItem("token", data.token);
-            localStorage.setItem("email", formData.email);
+            localStorage.setItem("user", JSON.stringify(data.user));
+
             setSuccessMessage("Login Successful!");
-            setTimeout(() => navigate("/"), 1000);
+            setTimeout(() => navigate("/"), 1000); // Redirect after a delay
+
         } catch (error) {
             console.error("Login error:", error);
             setError({ general: error.message || "Error logging in. Please try again." });
@@ -224,15 +236,14 @@ const Login = () => {
         }
     };
 
-
     const inputFields = [
         { label: "Email", type: "email", name: "email", validators: ["email"] },
         { label: "Password", type: "password", name: "password", validators: ["password"] },
     ];
 
     return (
-        <div className="container mt-5 mb-5" style={{ maxWidth: "400px" }}>
-            <div className="p-4 border rounded">
+        <div style={divStyle}>
+            <div className="p-4 border rounded" style={{ width: "350px", padding: "20px", backgroundColor: "white", borderRadius: "8px" }}>
                 <h1 className="text-center">Login</h1>
                 {inputFields.map((field) => (
                     <div key={field.name}>
@@ -254,7 +265,12 @@ const Login = () => {
                 {error.general && <p className="text-danger text-center mt-3">{error.general}</p>}
                 <p className="text-center mt-3">
                     Need an account?{" "}
-                    <span role="button" className="text-primary" onClick={() => navigate("/Accounts/signup")} style={{ cursor: "pointer" }}>
+                    <span
+                        role="button"
+                        className="text-primary"
+                        onClick={() => navigate("/Accounts/signup")}
+                        style={{ cursor: "pointer" }}
+                    >
                         Sign Up
                     </span>
                 </p>
