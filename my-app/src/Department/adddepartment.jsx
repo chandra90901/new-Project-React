@@ -1,22 +1,64 @@
 import React, { useState } from "react";
 import Input from "../Components/input";
+import Dropdown from "../Components/dropdown";
 
 const AddDepartment = ({ show, onClose, onSave }) => {
     const [formData, setFormData] = useState({ departmentName: "" });
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState(false);
 
     const handleChange = (value, isValid, key) => {
         setFormData({ ...formData, [key]: value });
     };
 
-    const handleSave = () => {
+    // const handleSave = () => {
+    //     if (!formData.departmentName.trim()) {
+    //         alert("please enter department name ")
+    //         return;
+    //     }
+    //     onSave(formData.departmentName);
+    //     setFormData({ departmentName: "" });
+    //     onClose();
+    // };
+
+    const handleSave = async () => {
         if (!formData.departmentName.trim()) {
-            alert("please enter department name ")
+            setError(true);
+            setMessage("Please enter department name");
             return;
         }
-        onSave(formData.departmentName);
-        setFormData({ departmentName: "" });
-        onClose();
+
+        try {
+            const response = await fetch("http://localhost:5001/api/department", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ departmentName: formData.departmentName }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setError(false);
+                setMessage("Department saved successfully!");
+                onSave(formData.departmentName);
+                setFormData({ departmentName: "" });
+
+                setTimeout(() => {
+                    onClose();
+                    setMessage("");
+                }, 1500);
+            } else {
+                setError(true);
+                setMessage(data.message || "Failed to save department");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            setError(true);
+            setMessage("Something went wrong!");
+        }
     };
+
 
     if (!show) return null;
     const addDepartments = [
@@ -24,8 +66,23 @@ const AddDepartment = ({ show, onClose, onSave }) => {
     ];
     return (
         <div className="modal-overlay p-4 border rounded">
-            <div className="modal-content" style={{ width: "32%", }}>
+            <div className="modal-content" style={{ width: "78%", }}>
                 <div style={{ width: "350px", padding: "20px", borderRadius: "8px" }}>
+                    <button
+                        onClick={onClose}
+                        style={{
+                            position: "absolute",
+                            top: "10px",
+                            right: "15px",
+                            background: "none",
+                            border: "none",
+                            fontSize: "1.6rem",
+                            cursor: "pointer",
+                            color: "#000",
+                        }}
+                    >
+                        &times;
+                    </button>
                     <h1 className="text-center">Add Department</h1>
                     {addDepartments.map((field) => (
                         <div key={field.name}>
@@ -36,12 +93,19 @@ const AddDepartment = ({ show, onClose, onSave }) => {
                                 value={formData[field.name]}
                                 onChange={handleChange}
                             />
-                            <button className="btn btn-primary w-100 mt-3" onClick={handleSave}>
-                                Save
-                            </button>
-                            <button className="btn btn-secondary w-100 mt-2" onClick={onClose}>
-                                Cancel
-                            </button>
+                            <div className="d-flex justify-content-end mt-3">
+                                <button className="btn btn-primary" onClick={handleSave}>
+                                    Save
+                                </button>
+                            </div>
+                            {message && (
+                                <div
+                                    className={`mt-3 text-${error ? "danger" : "success"}`}
+                                    style={{ fontSize: "14px" }}
+                                >
+                                    {message}
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>

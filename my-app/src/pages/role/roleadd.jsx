@@ -1,50 +1,100 @@
 import React, { useState } from "react";
 import Input from "../../Components/input";
 
+
 const AddRoles = ({ show, onClose, onSave }) => {
     const [formData, setFormData] = useState({ roleName: "" });
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState(false);
 
     const handleChange = (value, isValid, key) => {
         setFormData({ ...formData, [key]: value });
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!formData.roleName.trim()) {
-            alert("please enter Role name ")
+            setError(true);
+            setMessage("Please enter Role name");
             return;
         }
-        onSave(formData.roleName);
-        setFormData({ roleName: "" });
-        onClose();
+
+        try {
+            const response = await fetch("http://localhost:5001/api/role", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ roleName: formData.roleName }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setError(false);
+                setMessage("Role saved successfully!");
+                onSave(formData.roleName);
+                setFormData({ roleName: "" });
+                setTimeout(() => {
+                    onClose();
+                    setMessage("");
+                }, 1500);
+            } else {
+                setError(true);
+                setMessage(data.message || "Failed to save role");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            setError(true);
+            setMessage("Something went wrong!");
+        }
     };
 
     if (!show) return null;
-    const addRoles = [
-        { label: "Role Name", type: "text", name: "roleName" }
-    ];
+
     return (
-        <div className="modal-overlay p-4 border rounded">
-            <div className="modal-content" style={{ width: "32%", }}>
-                <div style={{ width: "350px", padding: "20px", borderRadius: "8px" }}>
-                    <h1 className="text-center">Add Role</h1>
-                    {addRoles.map((field) => (
-                        <div key={field.name}>
-                            <Input
-                                label={field.label}
-                                type={field.type}
-                                name={field.name}
-                                value={formData[field.name]}
-                                onChange={handleChange}
-                            />
-                            <button className="btn btn-primary w-100 mt-3" onClick={handleSave}>
-                                Save
-                            </button>
-                            <button className="btn btn-secondary w-100 mt-2" onClick={onClose}>
-                                Cancel
-                            </button>
-                        </div>
-                    ))}
+        <div className="modal-overlay">
+            <div className="modal-content" style={{ width: "350px", position: "relative" }}>
+
+                <button
+                    onClick={onClose}
+                    style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "15px",
+                        background: "none",
+                        border: "none",
+                        fontSize: "1.6rem",
+                        cursor: "pointer",
+                        color: "#000",
+                    }}
+                >
+                    &times;
+                </button>
+
+                <h4 className="text-center mb-4">Add Role</h4>
+
+                <Input
+                    label="Role Name"
+                    type="text"
+                    name="roleName"
+                    value={formData.roleName}
+                    onChange={handleChange}
+                />
+
+                <div className="d-flex justify-content-end">
+                    <button className="btn btn-primary mt-4" onClick={handleSave}>
+                        Save
+                    </button>
                 </div>
+
+                {/* Message display */}
+                {message && (
+                    <div
+                        className={`mt-3 mr-2 text-${error ? "danger" : "success"}`}
+                        style={{ fontSize: "14px" }}
+                    >
+                        {message}
+                    </div>
+                )}
             </div>
         </div>
     );

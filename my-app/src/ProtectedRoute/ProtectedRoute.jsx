@@ -8,34 +8,32 @@ const ProtectedRoute = ({ children }) => {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-
         if (!token) {
             navigate("/Accounts/login");
             return;
         }
 
         try {
-            const decoded = jwtDecode(token); // Decode the token
-            const currentTime = Date.now() / 1000; // Current time in seconds
+            const decoded = jwtDecode(token);
+            const currentTime = Date.now() / 1000;
 
-            // Check if token is expired
             if (decoded.exp < currentTime) {
-                localStorage.removeItem("token"); // Remove expired token
-                alert("Your session has expired. Please log in again.");
-                navigate("/Accounts/login"); // Redirect to login page
+                localStorage.removeItem("token");
+                alert("Session expired. Please log in again.");
+                navigate("/Accounts/login");
                 return;
             }
-        } catch (error) {
-            localStorage.removeItem("token"); // Handle decoding errors
-            alert("Session invalid. Please log in again.");
-            navigate("/Accounts/login"); // Redirect to login page
-            return;
-        }
 
-        setIsChecking(false); // Token check is complete
+            // Token is valid
+            setIsChecking(false);
+        } catch (err) {
+            localStorage.removeItem("token");
+            alert("Invalid session. Please log in again.");
+            navigate("/Accounts/login");
+        }
     }, [navigate]);
 
-    if (isChecking) return <div>Loading...</div>; // Show loading while checking
+    if (isChecking) return <div>Checking authentication...</div>;
 
     return children;
 };

@@ -1,15 +1,17 @@
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import React from "react";
 
-const Dropdown = ({ value, onChange }) => {
+const Dropdown = ({ label, name, value, options, onChange }) => {
     return (
-        <Select onValueChange={onChange} value={value}>
-            <SelectTrigger className="w-[200px]">{value || 'Select an option'}</SelectTrigger>
-            <SelectContent>
-                <SelectItem value="option1">Option 1</SelectItem>
-                <SelectItem value="option2">Option 2</SelectItem>
-                <SelectItem value="option3">Option 3</SelectItem>
-            </SelectContent>
-        </Select>
+        <div className="mb-3">
+            <label className="form-label">{label}</label>
+            <select className="form-select" name={name} value={value} onChange={onChange}>
+                {options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                    </option>
+                ))}
+            </select>
+        </div>
     );
 };
 

@@ -1,10 +1,18 @@
 import React from 'react';
 import NavBar from './NavBar';
-import { useNavigate } from 'react-router-dom';
+
 const Header = () => {
-    const navigate = useNavigate();
     return (
-        <header>
+        <header
+            style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100%',
+                zIndex: 1000,
+                backgroundColor: 'black',
+            }}
+        >
             <NavBar />
         </header>
     );
