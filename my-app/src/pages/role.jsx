@@ -3,13 +3,16 @@ import AddRoles from "../pages/role/roleadd";
 import "./role.css";
 import Table from 'react-bootstrap/Table';
 import roleImage from "../images/unnamed.jpg";
-import { getRoleDetails } from './role/rolesActions'
+import { getRoleDetails, allDeleteRole, selectDeleteRole } from './role/rolesActions'
 import { connect } from 'react-redux';
 import { useDispatch } from "react-redux";
+
 
 const Role = (props) => {
     const [roles, setRoles] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState(false);
     const [selectedRoles, setSelectedRoles] = useState(new Set());
     const dispatch = useDispatch();
     useEffect(() => {
@@ -25,36 +28,38 @@ const Role = (props) => {
     }, []);
 
     useEffect(() => {
-        if (props?.rolesData?.length > 0) {
-            setRoles(props.rolesData);
+        console.log(props?.roleData)
+        console.log(props?.rolesData)
+        if (props?.roleData?.length > 0) {
+            setRoles(props.roleData);
         }
-    }, [props?.rolesData])
+    }, [props?.roleData])
+
+
     const handleAddRole = (newRole) => {
         setRoles([...roles, { id: Date.now(), name: newRole }]);
     };
 
-    // const handleDeleteRole = (id) => {
-    //     setRoles(roles.filter((role) => role.id !== id));
-    // };
-
     const handleDeleteRole = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5001/api/role/${id}`, {
-                method: "DELETE",
-            });
-
-            if (response.ok) {
-                // Update UI after successful delete
-                setRoles(roles.filter((role) => role.id !== id));
-                alert("successfully deleted")
-            } else {
-                const errorData = await response.json();
-                console.error("Delete failed:", errorData.message);
-                alert("Failed to delete role: " + errorData.message);
-            }
+            // const response = await fetch(`http://localhost:5001/api/role/${id}`, {
+            //     method: "DELETE",
+            // });
+            await props.allDeleteRole(id);
+            setMessage("Successfully deleted");
+            props.getRoleDetails();
+            // if (response.ok) {
+            //     // Update UI after successful delete
+            //     setRoles(roles.filter((role) => role.id !== id));
+            //     alert("successfully deleted")
+            // } else {
+            //     const errorData = await response.json();
+            //     console.error("Delete failed:", errorData.message);
+            //     alert("Failed to delete role: " + errorData.message);
+            // }
         } catch (error) {
             console.error("Error deleting role:", error);
-            alert("Error deleting role");
+            setMessage("Error deleting role");
         }
     };
 
@@ -79,30 +84,34 @@ const Role = (props) => {
         const idsToDelete = Array.from(selectedRoles);
 
         if (idsToDelete.length === 0) {
-            alert("Please select at least one role to delete.");
+            setMessage("Please select at least one role to delete.");
             return;
         }
 
         try {
-            const response = await fetch("http://localhost:5001/api/role/delete", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ ids: idsToDelete }),
-            });
+            // const response = await fetch("http://localhost:5001/api/role/delete", {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify({ ids: idsToDelete }),
+            // });
 
-            const data = await response.json();
+            // const data = await response.json();
 
-            if (response.ok) {
-                setRoles(roles.filter((role) => !selectedRoles.has(role.id)));
-                setSelectedRoles(new Set());
-            } else {
-                alert(data.message || "Failed to delete selected roles");
-            }
+            // if (response.ok) {
+            //     setRoles(roles.filter((role) => !selectedRoles.has(role.id)));
+            //     setSelectedRoles(new Set());
+            // } else {
+            //     alert(data.message || "Failed to delete selected roles");
+            // }
+            dispatch(selectDeleteRole(idsToDelete));
+            setSelectedRoles(new Set());
+            setMessage("Successfully deleted selected roles");
+            dispatch(getRoleDetails());
         } catch (error) {
             console.error("Error deleting selected roles:", error);
-            alert("Error deleting selected roles");
+            setMessage("Error deleting selected roles");
         }
     };
     const divStyle = {
@@ -143,7 +152,7 @@ const Role = (props) => {
                                 <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                     <input
                                         type="checkbox"
-                                        style={{ borderRadius: "10px", border: "2px solid black" }}
+                                        style={{ borderRadius: "3px", border: "2px solid black" }}
                                         className="form-check-input"
                                         checked={selectedRoles.has(role.id)}
                                         onChange={() => handleCheckboxChange(role.id)}
@@ -167,11 +176,13 @@ const Role = (props) => {
 };
 
 const mapStateToProps = (state) => ({
-    rolesData: state.role.rolesData,
+    roleData: state.role.rolesData,
 });
 
 const mapDispatchToProps = {
-    getRoleDetails
+    getRoleDetails,
+    allDeleteRole,
+    selectDeleteRole
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Role);

@@ -4,40 +4,55 @@ import AddDepartment from "../Department/adddepartment";
 import "../Department/department.css";
 import Table from 'react-bootstrap/Table';
 import departmentImage from "../images/unnamed.jpg";
+import { getDepartmentDetails, selectDeleteDepartment, allDeleteDepartment } from "./departmentActions";
+import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 
-const Department = () => {
+const Department = (props) => {
     const [departments, setDepartments] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [selectedDepartments, setSelectedDepartments] = useState(new Set());
+    const dispatch = useDispatch();
     useEffect(() => {
-        fetch("http://localhost:5001/api/department")
-            .then((res) => res.json())
-            .then((data) => {
-                setDepartments(data);
-            })
-            .catch((err) => {
-                console.error("Error loading departments:", err);
-            });
+        // fetch("http://localhost:5001/api/department")
+        //     .then((res) => res.json())
+        //     .then((data) => {
+        //         setDepartments(data);
+        //     })
+        //     .catch((err) => {
+        //         console.error("Error loading departments:", err);
+        //     });
+        dispatch(getDepartmentDetails());
     }, []);
-    const handleAddDepartment = (newDepartments) => {
-        setDepartments([...departments, { id: Date.now(), name: newDepartments }]);
+
+    useEffect(() => {
+        if (props?.departmentData?.length > 0) {
+            setDepartments(props.departmentData);
+        }
+    }, [props?.departmentData])
+
+    const handleAddDepartment = () => {
+        // setDepartments([...departments, { id: Date.now(), name: newDepartments }]);
+        dispatch(getDepartmentDetails());
     };
 
     const handleDeleteDepartment = async (id) => {
         try {
-            const response = await fetch(`http://localhost:5001/api/department/${id}`, {
-                method: "DELETE",
-            });
+            // const response = await fetch(`http://localhost:5001/api/department/${id}`, {
+            //     method: "DELETE",
+            // });
 
-            if (response.ok) {
-                // Update UI after successful delete
-                setDepartments(departments.filter((department) => department.id !== id));
-                alert("successfully deleted")
-            } else {
-                const errorData = await response.json();
-                console.error("Delete failed:", errorData.message);
-                alert("Failed to delete departments: " + errorData.message);
-            }
+            // if (response.ok) {
+            //     // Update UI after successful delete
+            //     setDepartments(departments.filter((department) => department.id !== id));
+
+            // } else {
+            //     const errorData = await response.json();
+            //     console.error("Delete failed:", errorData.message);
+            //     alert("Failed to delete departments: " + errorData.message);
+            // }
+            await dispatch(allDeleteDepartment(id));
+            dispatch(getDepartmentDetails());
         } catch (error) {
             console.error("Error deleting departments:", error);
             alert("Error deleting departments");
@@ -80,22 +95,25 @@ const Department = () => {
         }
 
         try {
-            const response = await fetch("http://localhost:5000/api/department/delete", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ ids: idsToDelete }),
-            });
+            // const response = await fetch("http://localhost:5000/api/department/delete", {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify({ ids: idsToDelete }),
+            // });
 
-            const data = await response.json();
+            // const data = await response.json();
 
-            if (response.ok) {
-                setDepartments(departments.filter((department) => !selectedDepartments.has(department.id)));
-                setSelectedDepartments(new Set());
-            } else {
-                alert(data.message || "Failed to delete selected department");
-            }
+            // if (response.ok) {
+            //     setDepartments(departments.filter((department) => !selectedDepartments.has(department.id)));
+            //     setSelectedDepartments(new Set());
+            // } else {
+            //     alert(data.message || "Failed to delete selected department");
+            // }
+            await dispatch(selectDeleteDepartment(idsToDelete));
+            setSelectedDepartments(new Set());
+            dispatch(getDepartmentDetails());
         } catch (error) {
             console.error("Error deleting selected department:", error);
             alert("Error deleting selected department");
@@ -128,7 +146,7 @@ const Department = () => {
                                     <input
                                         type="checkbox"
                                         className="form-check-input"
-                                        style={{ borderRadius: "10px", border: "2px solid black" }}
+                                        style={{ borderRadius: "3px", border: "2px solid black" }}
                                         checked={selectedDepartments.has(department.id)}
                                         onChange={() => handleCheckboxChange(department.id)}
                                     />{department.departmentName}</td>
@@ -148,5 +166,12 @@ const Department = () => {
         </div >
     );
 };
-
-export default Department;
+const mapStateToProps = (state) => ({
+    deaprtmentData: state.department.departmentsData,
+});
+const mapDispatchToProps = {
+    getDepartmentDetails,
+    allDeleteDepartment,
+    selectDeleteDepartment,
+};
+export default connect(mapStateToProps, mapDispatchToProps)(Department);

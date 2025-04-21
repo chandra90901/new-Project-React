@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import Input from "../../Components/input";
+import { postRoles, getRoleDetails } from './rolesActions';
+import { useDispatch, connect } from "react-redux";
 
-
-const AddRoles = ({ show, onClose, onSave }) => {
+const AddRoles = ({ props, show, onClose, onSave }) => {
     const [formData, setFormData] = useState({ roleName: "" });
     const [message, setMessage] = useState("");
     const [error, setError] = useState(false);
+
+    const dispatch = useDispatch();
 
     const handleChange = (value, isValid, key) => {
         setFormData({ ...formData, [key]: value });
@@ -19,29 +22,31 @@ const AddRoles = ({ show, onClose, onSave }) => {
         }
 
         try {
-            const response = await fetch("http://localhost:5001/api/role", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ roleName: formData.roleName }),
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                setError(false);
-                setMessage("Role saved successfully!");
-                onSave(formData.roleName);
-                setFormData({ roleName: "" });
-                setTimeout(() => {
-                    onClose();
-                    setMessage("");
-                }, 1500);
-            } else {
-                setError(true);
-                setMessage(data.message || "Failed to save role");
-            }
-        } catch (error) {
+            // const response = await fetch("http://localhost:5001/api/role", {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify({ roleName: formData.roleName }),
+            // });
+            dispatch(postRoles(formData.roleName))
+            dispatch(getRoleDetails())
+            // const data = await response.json();
+            // if (response.ok) {
+            setError(false);
+            setMessage("Role saved successfully!");
+            onSave(formData.roleName);
+            setFormData({ roleName: "" });
+            setTimeout(() => {
+                onClose();
+                setMessage("");
+            }, 1500);
+        }
+        //  else {
+        //     setError(true);
+        //     setMessage(data.message || "Failed to save role");
+        // }
+        catch (error) {
             console.error("Error:", error);
             setError(true);
             setMessage("Something went wrong!");
@@ -100,4 +105,15 @@ const AddRoles = ({ show, onClose, onSave }) => {
     );
 };
 
-export default AddRoles;
+const mapStateToProps = (state) => ({
+    fetchRolesDataSuccess: state.role.fetchRolesDataSuccess,
+    fetchRolesDataFail: state.role.fetchRolesDataFail,
+});
+
+const mapDispatchToProps = {
+    getRoleDetails,
+    postRoles
+
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddRoles);
